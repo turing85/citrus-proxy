@@ -1,0 +1,399 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>de.turing85</groupId>
+    <artifactId>citrus-proxy</artifactId>
+    <name>citrus-proxy</name>
+    <version>999-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>services</module>
+        <module>citrus</module>
+    </modules>
+
+    <properties>
+        <!-- Plugin versions -->
+        <assembly-plugin.version>3.7.1</assembly-plugin.version>
+        <clean-plugin.version>3.4.1</clean-plugin.version>
+        <compiler-plugin.version>3.14.0</compiler-plugin.version>
+        <dependency-check-maven.version>12.1.1</dependency-check-maven.version>
+        <deploy-plugin.version>3.1.4</deploy-plugin.version>
+        <docker-compose-maven-plugin.version>4.0.0</docker-compose-maven-plugin.version>
+        <error-prone.version>2.38.0</error-prone.version>
+        <formatter-maven-plugin.version>2.26.0</formatter-maven-plugin.version>
+        <impsort-maven-plugin.version>1.12.0</impsort-maven-plugin.version>
+        <install-plugin.version>3.1.4</install-plugin.version>
+        <jar-plugin.version>3.4.2</jar-plugin.version>
+        <music-maven-plugin.version>1.0.3</music-maven-plugin.version>
+        <nullaway.version>0.12.7</nullaway.version>
+        <resources-plugin.version>3.3.1</resources-plugin.version>
+        <site-plugin.version>3.21.0</site-plugin.version>
+        <source-plugin.version>3.3.1</source-plugin.version>
+        <surefire-plugin.version>3.5.3</surefire-plugin.version>
+
+        <!-- Dependency versions -->
+        <jspecify.version>1.0.0</jspecify.version>
+        <lombok.version>1.18.38</lombok.version>
+
+        <!-- Quarkus versions -->
+        <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
+        <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
+        <quarkus.platform.version>3.23.0</quarkus.platform.version>
+
+        <!-- Test dependency versions -->
+        <truth.version>1.4.4</truth.version>
+        <citrus.version>4.6.0</citrus.version>
+        <log4j2.version>2.24.3</log4j2.version>
+
+        <!-- Project setup -->
+        <attach-elf.skip>true</attach-elf.skip>
+        <attach-fast-jar.skip>false</attach-fast-jar.skip>
+
+        <citrus-tests.skip>false</citrus-tests.skip>
+
+        <dependency-check-maven.goal>check</dependency-check-maven.goal>
+        <dependency-check-maven.skip>true</dependency-check-maven.skip>
+        <dependency-check-maven.formats>html,junit</dependency-check-maven.formats>
+
+        <failsafe-plugin.skip>false</failsafe-plugin.skip>
+
+        <formatter-maven-plugin.goal>format</formatter-maven-plugin.goal>
+        <formatter-maven-plugin.skip>false</formatter-maven-plugin.skip>
+
+        <git.url.https>https://github.com/turing85/citrus-proxy.git</git.url.https>
+        <git.url.ssh>git@github.com:turing85/citrus-proxy.git</git.url.ssh>
+
+        <impsort-maven-plugin.goal>sort</impsort-maven-plugin.goal>
+        <impsort-maven-plugin.skip>false</impsort-maven-plugin.skip>
+
+        <maven.compiler.parameters>true</maven.compiler.parameters>
+        <maven.compiler.proc>full</maven.compiler.proc>
+        <maven.compiler.release>21</maven.compiler.release>
+
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <quarkus.bootstrap.incubating-model-resolver>true</quarkus.bootstrap.incubating-model-resolver>
+        <quarkus.container-image.additional-tags>jvm</quarkus.container-image.additional-tags>
+        <quarkus.docker.dockerfile-native-path>src/main/container/Containerfile.native-distroless</quarkus.docker.dockerfile-native-path>
+        <quarkus.docker.dockerfile-jvm-path>src/main/container/Containerfile.temurin</quarkus.docker.dockerfile-jvm-path>
+        <quarkus-maven-plugin.skip>false</quarkus-maven-plugin.skip>
+        <quarkus.native.builder-image>quay.io/quarkus/ubi-quarkus-mandrel-builder-image:23.1.7.0-Final-java21-2025-05-25@sha256:4300e3d0d005323e9bfd786868ac3d69b2dbed480b7a821b49d869d355c262bd</quarkus.native.builder-image>
+        <quarkus.native.container-build>true</quarkus.native.container-build>
+        <quarkus.package.jar.add-runner-suffix>false</quarkus.package.jar.add-runner-suffix>
+
+        <surefire-plugin.skip>false</surefire-plugin.skip>
+    </properties>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-clean-plugin</artifactId>
+                    <version>${clean-plugin.version}</version>
+                </plugin>
+
+                <!-- phase: validate -->
+                <plugin>
+                    <groupId>net.revelc.code.formatter</groupId>
+                    <artifactId>formatter-maven-plugin</artifactId>
+                    <version>${formatter-maven-plugin.version}</version>
+                    <configuration>
+                        <configFile>${maven.multiModuleProjectDirectory}/google-style.xml</configFile>
+                        <lineEnding>LF</lineEnding>
+                        <skip>${formatter-maven-plugin.skip}</skip>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>${formatter-maven-plugin.goal}</goal>
+                            </goals>
+                            <phase>validate</phase>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>net.revelc.code</groupId>
+                    <artifactId>impsort-maven-plugin</artifactId>
+                    <version>${impsort-maven-plugin.version}</version>
+                    <configuration>
+                        <groups>java.,javax.,jakarta.,*</groups>
+                        <lineEnding>LF</lineEnding>
+                        <removeUnused>true</removeUnused>
+                        <skip>${impsort-maven-plugin.skip}</skip>
+                        <staticAfter>true</staticAfter>
+                        <staticGroups>java,javax.,jakarta.,*</staticGroups>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>${impsort-maven-plugin.goal}</goal>
+                            </goals>
+                            <phase>validate</phase>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <!-- phase: compile -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>${resources-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${compiler-plugin.version}</version>
+                    <configuration>
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                                <version>${lombok.version}</version>
+                            </path>
+                            <path>
+                                <groupId>com.google.errorprone</groupId>
+                                <artifactId>error_prone_core</artifactId>
+                                <version>${error-prone.version}</version>
+                            </path>
+                            <path>
+                                <groupId>com.uber.nullaway</groupId>
+                                <artifactId>nullaway</artifactId>
+                                <version>${nullaway.version}</version>
+                            </path>
+                        </annotationProcessorPaths>
+                        <compilerArgs>
+                            <arg>-XDcompilePolicy=simple</arg>
+                            <arg>--should-stop=ifError=FLOW</arg>
+                            <arg>-Xplugin:ErrorProne -XepOpt:NullAway:AnnotatedPackages=de.turing85</arg>
+                        </compilerArgs>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>${quarkus.platform.group-id}</groupId>
+                    <artifactId>quarkus-maven-plugin</artifactId>
+                    <version>${quarkus.platform.version}</version>
+                    <configuration>
+                        <skip>${quarkus-maven-plugin.skip}</skip>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>build</goal>
+                                <goal>generate-code</goal>
+                                <goal>generate-code-tests</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <extensions>true</extensions>
+                </plugin>
+
+                <!-- phase: test -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${surefire-plugin.version}</version>
+                </plugin>
+
+                <!-- phase: package -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>${jar-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.citrusframework.mvn</groupId>
+                    <artifactId>citrus-agent-maven-plugin</artifactId>
+                    <version>${citrus.version}</version>
+                    <executions>
+                        <execution>
+                            <id>test-jar</id>
+                            <goals>
+                                <goal>test-jar</goal>
+                            </goals>
+                            <phase>package</phase>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <!-- phase: verify -->
+                <plugin>
+                    <groupId>com.dkanejs.maven.plugins</groupId>
+                    <artifactId>docker-compose-maven-plugin</artifactId>
+                    <version>${docker-compose-maven-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>${surefire-plugin.version}</version>
+                    <configuration>
+                        <skip>${failsafe-plugin.skip}</skip>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>integration-test</goal>
+                                <goal>verify</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.owasp</groupId>
+                    <artifactId>dependency-check-maven</artifactId>
+                    <version>${dependency-check-maven.version}</version>
+                    <configuration>
+                        <outputDirectory>${project.build.directory}/owasp</outputDirectory>
+                        <failBuildOnCVSS>0</failBuildOnCVSS>
+                        <formats>${dependency-check-maven.formats}</formats>
+                        <skip>${dependency-check-maven.skip}</skip>
+                        <suppressionFile>${project.basedir}/src/test/resources/owasp-dependency-check.xml</suppressionFile>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>${dependency-check-maven.goal}</goal>
+                            </goals>
+                            <phase>verify</phase>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>${source-plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <id>attach-sources</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>jar-no-fork</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <!-- phase: install -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>${install-plugin.version}</version>
+                </plugin>
+
+                <!-- phase: deploy -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <version>${deploy-plugin.version}</version>
+                </plugin>
+
+                <!-- phase: site -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>${site-plugin.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>entertain-me</id>
+            <activation>
+                <property>
+                    <name>entertain-me</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>software.xdev</groupId>
+                        <artifactId>music-maven-plugin</artifactId>
+                        <inherited>false</inherited>
+                        <version>${music-maven-plugin.version}</version>
+                        <configuration>
+                            <sources>
+                                <musicSource>
+                                    <uri>https://ia601306.us.archive.org/27/items/19WilliamTellOverture/19%20William%20Tell%20Overture.mp3</uri>
+                                </musicSource>
+                            </sources>
+                            <shuffle>true</shuffle>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>validate</phase>
+                                <goals>
+                                    <goal>music</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>owasp</id>
+            <activation>
+                <property>
+                    <name>owasp</name>
+                </property>
+            </activation>
+            <properties>
+                <dependency-check-maven.skip>false</dependency-check-maven.skip>
+            </properties>
+        </profile>
+
+        <!-- skip profiles -->
+        <profile>
+            <id>skip-citrus</id>
+            <activation>
+                <property>
+                    <name>skip-citrus</name>
+                </property>
+            </activation>
+            <properties>
+                <citrus-tests.skip>true</citrus-tests.skip>
+            </properties>
+        </profile>
+        <profile>
+            <id>skip-failsafe</id>
+            <activation>
+                <property>
+                    <name>skip-failsafe</name>
+                </property>
+            </activation>
+            <properties>
+                <failsafe-plugin.skip>true</failsafe-plugin.skip>
+            </properties>
+        </profile>
+        <profile>
+            <id>skip-format</id>
+            <activation>
+                <property>
+                    <name>skip-format</name>
+                </property>
+            </activation>
+            <properties>
+                <formatter-maven-plugin.skip>true</formatter-maven-plugin.skip>
+                <impsort-maven-plugin.skip>true</impsort-maven-plugin.skip>
+            </properties>
+        </profile>
+        <profile>
+            <id>skip-surefire</id>
+            <activation>
+                <property>
+                    <name>skip-surefire</name>
+                </property>
+            </activation>
+            <properties>
+                <surefire-plugin.skip>true</surefire-plugin.skip>
+            </properties>
+        </profile>
+    </profiles>
+</project>
