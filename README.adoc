@@ -1,0 +1,47 @@
+= citrus-proxy
+
+A project to demonstrate how citrus can "proxy" requestBuilders from a link:services/internal/[service under test] to an link:services/external/[external service].
+
+== Prerequisites
+To run the tests, Java 21 and `docker-compose` is required.
+
+== Build the applications and run the tests
+.Build the applications and run the tests
+[source, bash]
+----
+./mvnw clean verify
+----
+
+== Build the applications, run the tests, and ENTERTAIN ME!
+If you get bored easily, turn up your headphones/speakers and try
+
+.Build the applications, run the tests, and ENTERTAIN ME!
+[source, bash]
+----
+./mvnw --define entertain-me clean verify
+----
+
+
+== Contributors ✨
+
+Thanks goes to these wonderful people (https://allcontributors.org/docs/en/emoji-key[emoji key]):
+
+++++
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://turing85.github.io"><img src="https://avatars.githubusercontent.com/u/32584495?v=4?s=100" width="100px;" alt="Marco Bungart"/><br /><sub><b>Marco Bungart</b></sub></a><br /><a href="#code-turing85" title="Code">💻</a> <a href="#maintenance-turing85" title="Maintenance">🚧</a> <a href="#doc-turing85" title="Documentation">📖</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+++++
+
+This project follows the https://github.com/all-contributors/all-contributors[all-contributors] specification. Contributions of any kind welcome!
