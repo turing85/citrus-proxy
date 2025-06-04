@@ -189,6 +189,11 @@
         </dependency>
         <dependency>
             <groupId>org.citrusframework</groupId>
+            <artifactId>citrus-spring-integration</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.citrusframework</groupId>
             <artifactId>citrus-junit5</artifactId>
             <scope>test</scope>
         </dependency>

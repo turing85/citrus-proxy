@@ -13,7 +13,6 @@ import org.citrusframework.TestCaseRunner;
 import org.citrusframework.annotations.CitrusResource;
 import org.citrusframework.annotations.CitrusTest;
 import org.citrusframework.http.client.HttpClient;
-import org.citrusframework.http.server.HttpServer;
 import org.citrusframework.junit.jupiter.spring.CitrusSpringSupport;
 import org.citrusframework.message.MessageHeaders;
 import org.junit.jupiter.api.Test;
@@ -45,7 +44,6 @@ class HelloIT {
 
   private final HttpClient clientExternalApi;
   private final HttpClient clientSut;
-  private final HttpServer serverExternalApiProxy;
   private final TestActor callSutActor;
   private final TestActor externalApiActor;
   private final TestActor verifyExternalApiActor;
@@ -53,14 +51,12 @@ class HelloIT {
 
   HelloIT(@Qualifier(Http.CLIENT_EXTERNAL_API_NAME) HttpClient clientExternalApi,
       @Qualifier(Http.CLIENT_SUT_NAME) HttpClient clientSut,
-      @Qualifier(Http.SERVER_EXTERNAL_API_PROXY_NAME) HttpServer serverExternalApiProxy,
       @Qualifier(Actors.CALL_SUT_NAME) TestActor callSutActor,
       @Qualifier(Actors.EXTERNAL_API_NAME) TestActor externalApiActor,
       @Qualifier(Actors.VERIFY_EXTERNAL_API_NAME) TestActor verifyExternalApiActor,
       @Value("${test-config.sut.url}") String sutUrl) {
     this.clientExternalApi = clientExternalApi;
     this.clientSut = clientSut;
-    this.serverExternalApiProxy = serverExternalApiProxy;
     this.callSutActor = callSutActor;
     this.externalApiActor = externalApiActor;
     this.verifyExternalApiActor = verifyExternalApiActor;
@@ -81,7 +77,6 @@ class HelloIT {
             .behavior(new HttpProxyBehaviour(
                 "external-proxy",
                 clientExternalApi(),
-                serverExternalApiProxy(),
                 verifyExternalApiActor(),
                 callSutActor(),
                 HttpMethod.GET,

@@ -3,22 +3,23 @@ package de.turing85.citrus.proxy.behaviour;
 import java.util.Collections;
 import java.util.UUID;
 
+import de.turing85.citrus.proxy.configuration.Http;
 import lombok.AllArgsConstructor;
 import org.citrusframework.TestActionRunner;
 import org.citrusframework.TestActor;
 import org.citrusframework.TestBehavior;
 import org.citrusframework.http.actions.HttpClientActionBuilder;
 import org.citrusframework.http.actions.HttpClientRequestActionBuilder;
-import org.citrusframework.http.actions.HttpServerActionBuilder;
-import org.citrusframework.http.actions.HttpServerRequestActionBuilder;
 import org.citrusframework.http.client.HttpClient;
-import org.citrusframework.http.server.HttpServer;
+import org.citrusframework.http.message.HttpMessageHeaders;
 import org.citrusframework.message.MessageHeaders;
 import org.jspecify.annotations.Nullable;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 
 import static org.citrusframework.actions.EchoAction.Builder.echo;
+import static org.citrusframework.actions.ReceiveMessageAction.Builder.receive;
+import static org.citrusframework.actions.SendMessageAction.Builder.send;
 import static org.citrusframework.container.Async.Builder.async;
 import static org.citrusframework.container.Sequence.Builder.sequential;
 import static org.citrusframework.dsl.MessageSupport.MessageHeaderSupport.fromHeaders;
@@ -30,7 +31,6 @@ public class HttpProxyBehaviour implements TestBehavior {
 
   private final String name;
   private final HttpClient client;
-  private final HttpServer proxyServer;
   private final TestActor clientActor;
   private final TestActor proxyServerActor;
   private final HttpMethod httpMethod;
@@ -44,7 +44,6 @@ public class HttpProxyBehaviour implements TestBehavior {
 
   @Override
   public void apply(TestActionRunner runner) {
-    final RequestBuilders requestBuilders = constructRequests();
     final String externalRequestIdVariableName =
         EXTERNAL_REQUEST_ID_VARIABLE_NAME_PATTERN.formatted(name, UUID.randomUUID());
     final String externalRequestIdCitrusVariable = "${%s}".formatted(externalRequestIdVariableName);
@@ -53,10 +52,10 @@ public class HttpProxyBehaviour implements TestBehavior {
         async().actions(
             sequential()
                 .actions(
-                    requestBuilders
-                        .server()
+                    receive(Http.getEndpoint("/hello"))
                         .message()
-                        .accept(acceptHeader)
+                        .header(HttpMessageHeaders.HTTP_REQUEST_METHOD, "GET")
+                        .header(HttpMessageHeaders.HTTP_ACCEPT, acceptHeader)
                         .body(requestBody),
                     echo("%s: Received %s %s".formatted(name, httpMethod, path)))
                 .actor(proxyServerActor),
@@ -67,8 +66,7 @@ public class HttpProxyBehaviour implements TestBehavior {
                         httpMethod,
                         client.getEndpointConfiguration().getRequestUrl(),
                         path)),
-                    requestBuilders
-                        .client()
+                    constructRequest()
                         .message()
                         .accept(acceptHeader)
                         .body(requestBody)
@@ -93,57 +91,38 @@ public class HttpProxyBehaviour implements TestBehavior {
             sequential()
                 .actions(
                     echo("%s: Sending response for %s %s".formatted(name, httpMethod, path)),
-                    http()
-                        .server(proxyServer)
-                        .respond()
+                    send(Http.getEndpoint("/hello"))
                         .message()
-                        .status(status)
-                        .contentType(acceptHeader)
+                        .header(HttpMessageHeaders.HTTP_STATUS_CODE, status)
+                        .header(HttpMessageHeaders.HTTP_ACCEPT, acceptHeader)
                         .body(responseBody))
                 .actor(proxyServerActor)));
     // @formatter:on
   }
 
-  private RequestBuilders constructRequests() {
-    final HttpServerActionBuilder.HttpServerReceiveActionBuilder sutReceiveRequest =
-        http().server(proxyServer).receive();
+  private HttpClientRequestActionBuilder constructRequest() {
     final HttpClientActionBuilder.HttpClientSendActionBuilder externalClientSend =
         http().client(client).send();
-    final HttpServerRequestActionBuilder sutRequest;
     final HttpClientRequestActionBuilder externalClientRequest;
     if (httpMethod.equals(HttpMethod.GET)) {
-      sutRequest = sutReceiveRequest.get(path);
       externalClientRequest = externalClientSend.get(path);
     } else if (httpMethod.equals(HttpMethod.HEAD)) {
-      sutRequest = sutReceiveRequest.head(path);
       externalClientRequest = externalClientSend.head(path);
     } else if (httpMethod.equals(HttpMethod.POST)) {
-      sutRequest = sutReceiveRequest.post(path);
       externalClientRequest = externalClientSend.post(path);
     } else if (httpMethod.equals(HttpMethod.PUT)) {
-      sutRequest = sutReceiveRequest.put(path);
       externalClientRequest = externalClientSend.put(path);
     } else if (httpMethod.equals(HttpMethod.PATCH)) {
-      sutRequest = sutReceiveRequest.patch(path);
       externalClientRequest = externalClientSend.patch(path);
     } else if (httpMethod.equals(HttpMethod.DELETE)) {
-      sutRequest = sutReceiveRequest.delete(path);
       externalClientRequest = externalClientSend.delete(path);
     } else if (httpMethod.equals(HttpMethod.OPTIONS)) {
-      sutRequest = sutReceiveRequest.options(path);
       externalClientRequest = externalClientSend.options(path);
     } else if (httpMethod.equals(HttpMethod.TRACE)) {
-      sutRequest = sutReceiveRequest.trace(path);
       externalClientRequest = externalClientSend.trace(path);
     } else {
       throw new IllegalArgumentException("http method not supported: " + httpMethod);
     }
-    return new RequestBuilders(sutRequest, externalClientRequest);
+    return externalClientRequest;
   }
-
-  // @formatter:off
-  private record RequestBuilders(HttpServerRequestActionBuilder server,
-      HttpClientRequestActionBuilder client) {
-  }
-  // @formatter:on
 }
